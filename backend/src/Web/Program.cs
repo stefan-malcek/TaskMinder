@@ -1,4 +1,3 @@
-using TaskFree.Application.WeatherForecasts.Queries.GetWeatherForecasts;
 using TaskFree.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,7 +32,7 @@ app.UseCors(static builder =>
         .AllowAnyOrigin());
 app.UseStaticFiles();
 
-app.UseSwaggerUi3(settings =>
+app.UseSwaggerUi(settings =>
 {
     settings.Path = "/api";
     settings.DocumentPath = "/api/specification.json";
