@@ -59,7 +59,7 @@ public class UpdateTodoListTests : BaseTestFixture
 
         await SendAsync(command);
 
-        var list = await FindAsync<TodoList>(listId);
+        var list = await FindAsync<NoteList>(listId);
 
         list.Should().NotBeNull();
         list!.Title.Should().Be(command.Title);

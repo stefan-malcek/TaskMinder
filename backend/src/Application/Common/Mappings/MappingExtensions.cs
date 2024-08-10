@@ -1,6 +1,6 @@
-﻿using TaskFree.Application.Common.Models;
+﻿using Backend.Application.Common.Models;
 
-namespace TaskFree.Application.Common.Mappings;
+namespace Backend.Application.Common.Mappings;
 
 public static class MappingExtensions
 {

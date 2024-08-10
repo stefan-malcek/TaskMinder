@@ -1,12 +1,10 @@
-﻿using TaskFree.Domain.Entities;
+﻿using Backend.Domain.Entities;
 
-namespace TaskFree.Application.Common.Interfaces;
+namespace Backend.Application.Common.Interfaces;
 
 public interface IApplicationDbContext
 {
-    DbSet<TodoList> TodoLists { get; }
-
-    DbSet<TodoItem> TodoItems { get; }
+    DbSet<NoteList> NoteLists { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

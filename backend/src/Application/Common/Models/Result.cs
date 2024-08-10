@@ -1,4 +1,4 @@
-﻿namespace TaskFree.Application.Common.Models;
+﻿namespace Backend.Application.Common.Models;
 
 public class Result
 {

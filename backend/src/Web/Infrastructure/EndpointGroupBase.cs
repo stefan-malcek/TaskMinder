@@ -1,4 +1,4 @@
-﻿namespace TaskFree.Web.Infrastructure;
+﻿namespace Backend.Web.Infrastructure;
 
 public abstract class EndpointGroupBase
 {

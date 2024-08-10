@@ -1,81 +1,111 @@
-﻿using TaskFree.Application.Common.Interfaces;
-using TaskFree.Application.Common.Models;
-using Microsoft.AspNetCore.Authorization;
+﻿using System.Text;
+using Backend.Application.Common.Exceptions;
+using Backend.Application.Common.Interfaces;
+using Backend.Application.Common.Models;
+using Backend.Application.Common.Models.Identity;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
+using UUIDNext;
 
-namespace TaskFree.Infrastructure.Identity;
+namespace Backend.Infrastructure.Identity;
 
-public class IdentityService : IIdentityService
+public class IdentityService(UserManager<ApplicationUser> userManager) : IIdentityService
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IUserClaimsPrincipalFactory<ApplicationUser> _userClaimsPrincipalFactory;
-    private readonly IAuthorizationService _authorizationService;
-
-    public IdentityService(
-        UserManager<ApplicationUser> userManager,
-        IUserClaimsPrincipalFactory<ApplicationUser> userClaimsPrincipalFactory,
-        IAuthorizationService authorizationService)
+    public async Task<string?> GetUserEmailAsync(Guid userId)
     {
-        _userManager = userManager;
-        _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
-        _authorizationService = authorizationService;
+        var user = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        return user?.Email;
     }
 
-    public async Task<string?> GetUserNameAsync(string userId)
+    public async Task<UserViewModel?> GetUserAsync(Guid userId)
     {
-        var user = await _userManager.Users.FirstAsync(u => u.Id == userId);
-
-        return user.UserName;
+        var user = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        return user is null
+            ? null
+            : new UserViewModel(user.Id, user.Email, user.EmailConfirmed);
     }
 
-    public async Task<(Result Result, string UserId)> CreateUserAsync(string userName, string password)
+    public async Task<UserViewModel?> GetUserByEmailAsync(string email)
     {
-        var user = new ApplicationUser
+        var user = await userManager.Users.FirstOrDefaultAsync(u => u.Email == email);
+        return user is null
+            ? null
+            : new UserViewModel(user.Id, email, user.EmailConfirmed);
+    }
+
+    public async Task<string> GeneratePasswordResetTokenAsync(Guid id)
+    {
+        var user = await userManager.Users.FirstAsync(u => u.Id == id);
+        var code = await userManager.GeneratePasswordResetTokenAsync(user);
+        return WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+    }
+
+    public async Task<Result> ResetPasswordAsync(Guid userId, string code, string password)
+    {
+        var user = await userManager.Users.FirstAsync(u => u.Id == userId);
+
+        try
         {
-            UserName = userName,
-            Email = userName,
-        };
+            var decodedCode = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
+            var result = await userManager.ResetPasswordAsync(user, decodedCode, password);
 
-        var result = await _userManager.CreateAsync(user, password);
-
-        return (result.ToApplicationResult(), user.Id);
-    }
-
-    public async Task<bool> IsInRoleAsync(string userId, string role)
-    {
-        var user = _userManager.Users.SingleOrDefault(u => u.Id == userId);
-
-        return user != null && await _userManager.IsInRoleAsync(user, role);
-    }
-
-    public async Task<bool> AuthorizeAsync(string userId, string policyName)
-    {
-        var user = _userManager.Users.SingleOrDefault(u => u.Id == userId);
-
-        if (user == null)
+            return result.ToApplicationResult();
+        }
+        catch (FormatException)
         {
-            return false;
+            return IdentityResult.Failed(userManager.ErrorDescriber.InvalidToken()).ToApplicationResult();
+        }
+    }
+
+    public async Task<bool> IsEmailTakenAsync(string email)
+    {
+        var user = await userManager.Users.SingleOrDefaultAsync(u => u.Email == email);
+        return user is not null;
+    }
+
+    public async Task<(Result Result, UserViewModel User)> CreateClientUserAsync(string email, string password)
+    {
+        var user = new ApplicationUser { Id = Uuid.NewDatabaseFriendly(Database.PostgreSql), UserName = email, Email = email };
+        var result = await userManager.CreateAsync(user, password);
+        if (!result.Succeeded)
+        {
+            return (result.ToApplicationResult(), new UserViewModel(user.Id, email, user.EmailConfirmed));
         }
 
-        var principal = await _userClaimsPrincipalFactory.CreateAsync(user);
-
-        var result = await _authorizationService.AuthorizeAsync(principal, policyName);
-
-        return result.Succeeded;
+        return (result.ToApplicationResult(), new UserViewModel(user.Id, email, user.EmailConfirmed));
     }
 
-    public async Task<Result> DeleteUserAsync(string userId)
+    public async Task<string> GenerateEmailConfirmationTokenAsync(Guid userId)
     {
-        var user = _userManager.Users.SingleOrDefault(u => u.Id == userId);
-
-        return user != null ? await DeleteUserAsync(user) : Result.Success();
+        var user = await userManager.Users.FirstAsync(u => u.Id == userId);
+        var code = await userManager.GenerateEmailConfirmationTokenAsync(user);
+        return WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
     }
 
-    public async Task<Result> DeleteUserAsync(ApplicationUser user)
+    public async Task<Result> ConfirmEmailAsync(Guid userId, string code)
     {
-        var result = await _userManager.DeleteAsync(user);
+        var user = await userManager.Users.SingleOrDefaultAsync(u => u.Id == userId);
+        ThrowIf.Entity.IsInvalid(userId, user, ValidationErrors.InvalidUser);
 
+        var decodedCode = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
+        IdentityResult result = await userManager.ConfirmEmailAsync(user, decodedCode);
         return result.ToApplicationResult();
+    }
+
+    public async Task<UserViewModel?> VerifyUserAsync(string email, string password)
+    {
+        var user = userManager.Users.SingleOrDefault(u => u.Email == email);
+        if (user is null)
+        {
+            return null;
+        }
+
+        if (!await userManager.CheckPasswordAsync(user, password))
+        {
+            return null;
+        }
+
+        return new UserViewModel(user.Id, email, user.EmailConfirmed);
     }
 }

@@ -8,6 +8,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		backend\Directory.Build.props = backend\Directory.Build.props
 		backend\Directory.Packages.props = backend\Directory.Packages.props
+		backend\docker-compose.yml = backend\docker-compose.yml
 		backend\global.json = backend\global.json
 		README.md = README.md
 	EndProjectSection
@@ -23,14 +24,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LocalEnvironment.ServiceDefaults", "local\ServiceDefaults\LocalEnvironment.ServiceDefaults.csproj", "{E896C151-DA73-46D4-A6CF-7965DA2E43D6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LocalEnvironment.AppHost", "local\AppHost\LocalEnvironment.AppHost.csproj", "{0AB35A92-DD05-46C3-ABC4-9AB97EDD08D6}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.Application.FunctionalTests", "backend\tests\Application.FunctionalTests\Backend.Application.FunctionalTests.csproj", "{B7B4C571-1FC3-4BA2-A32F-208D161DBC33}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.Application.UnitTests", "backend\tests\Application.UnitTests\Backend.Application.UnitTests.csproj", "{07C28F19-D978-44F0-B37B-AC0F30CD81E5}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.Domain.UnitTests", "backend\tests\Domain.UnitTests\Backend.Domain.UnitTests.csproj", "{0FA84859-24F0-4246-91B0-619EA245947B}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.Infrastructure.IntegrationTests", "backend\tests\Infrastructure.IntegrationTests\Backend.Infrastructure.IntegrationTests.csproj", "{E5E47091-E81D-4943-9192-CB7FFB8D50FD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -62,22 +55,6 @@ Global
 		{0AB35A92-DD05-46C3-ABC4-9AB97EDD08D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0AB35A92-DD05-46C3-ABC4-9AB97EDD08D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0AB35A92-DD05-46C3-ABC4-9AB97EDD08D6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B7B4C571-1FC3-4BA2-A32F-208D161DBC33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B7B4C571-1FC3-4BA2-A32F-208D161DBC33}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B7B4C571-1FC3-4BA2-A32F-208D161DBC33}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B7B4C571-1FC3-4BA2-A32F-208D161DBC33}.Release|Any CPU.Build.0 = Release|Any CPU
-		{07C28F19-D978-44F0-B37B-AC0F30CD81E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{07C28F19-D978-44F0-B37B-AC0F30CD81E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{07C28F19-D978-44F0-B37B-AC0F30CD81E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{07C28F19-D978-44F0-B37B-AC0F30CD81E5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0FA84859-24F0-4246-91B0-619EA245947B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0FA84859-24F0-4246-91B0-619EA245947B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0FA84859-24F0-4246-91B0-619EA245947B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0FA84859-24F0-4246-91B0-619EA245947B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E5E47091-E81D-4943-9192-CB7FFB8D50FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E5E47091-E81D-4943-9192-CB7FFB8D50FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E5E47091-E81D-4943-9192-CB7FFB8D50FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E5E47091-E81D-4943-9192-CB7FFB8D50FD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

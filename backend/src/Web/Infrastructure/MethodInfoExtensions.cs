@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace TaskFree.Web.Infrastructure;
+namespace Backend.Web.Infrastructure;
 
 public static class MethodInfoExtensions
 {

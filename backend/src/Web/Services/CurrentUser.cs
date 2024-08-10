@@ -1,17 +1,25 @@
 ﻿using System.Security.Claims;
+using Backend.Application.Common.Interfaces;
+using static System.Guid;
 
-using TaskFree.Application.Common.Interfaces;
+namespace Backend.Web.Services;
 
-namespace TaskFree.Web.Services;
-
-public class CurrentUser : IUser
+public class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICurrentUser
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
-    public CurrentUser(IHttpContextAccessor httpContextAccessor)
+    public Guid? Id
     {
-        _httpContextAccessor = httpContextAccessor;
+        get
+        {
+            string? userId = httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+            return TryParse(userId, out var guid) ? guid : null;
+        }
     }
 
-    public string? Id => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+    public string Language
+    {
+        get
+        {
+            return httpContextAccessor.HttpContext?.Request.Headers.AcceptLanguage.ToString() ?? "cs-CZ";
+        }
+    }
 }

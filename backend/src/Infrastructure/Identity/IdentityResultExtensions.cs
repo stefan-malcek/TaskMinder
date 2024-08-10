@@ -1,7 +1,7 @@
-﻿using TaskFree.Application.Common.Models;
+﻿using Backend.Application.Common.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace TaskFree.Infrastructure.Identity;
+namespace Backend.Infrastructure.Identity;
 
 public static class IdentityResultExtensions
 {

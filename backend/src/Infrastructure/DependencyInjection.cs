@@ -1,22 +1,21 @@
-﻿using TaskFree.Application.Common.Interfaces;
-using TaskFree.Domain.Constants;
-using TaskFree.Infrastructure.Data;
-using TaskFree.Infrastructure.Data.Interceptors;
-using TaskFree.Infrastructure.Identity;
+﻿using Backend.Application.Common.Interfaces;
+using Backend.Infrastructure.Data;
+using Backend.Infrastructure.Data.Interceptors;
+using Backend.Infrastructure.Email;
+using Backend.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.Extensions.DependencyInjection;
+namespace Backend.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructureServices(
+        this IServiceCollection services, string? databaseConnection)
     {
-        var connectionString = configuration.GetConnectionString("DefaultConnection");
-
-        Guard.Against.Null(connectionString, message: "Connection string 'DefaultConnection' not found.");
+        ArgumentNullException.ThrowIfNull(databaseConnection);
 
         services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
         services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
@@ -24,30 +23,30 @@ public static class DependencyInjection
         services.AddDbContext<ApplicationDbContext>((sp, options) =>
         {
             options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
-
-            options.UseSqlServer(connectionString);
+            options.UseNpgsql(databaseConnection);
         });
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
+        services.AddScoped<ApplicationDbContextInitializer>();
 
-        services.AddScoped<ApplicationDbContextInitialiser>();
+        services.AddScoped<IIdentityService, IdentityService>();
 
-        services.AddAuthentication()
-            .AddBearerToken(IdentityConstants.BearerScheme);
-
-        services.AddAuthorizationBuilder();
-
-        services
-            .AddIdentityCore<ApplicationUser>()
-            .AddRoles<IdentityRole>()
-            .AddEntityFrameworkStores<ApplicationDbContext>()
-            .AddApiEndpoints();
+        services.AddDefaultIdentity<ApplicationUser>(opt =>
+            {
+                opt.Password.RequireLowercase = true;
+                opt.Password.RequireUppercase = true;
+                opt.Password.RequiredLength = 8;
+                opt.Password.RequireNonAlphanumeric = false;
+                opt.SignIn.RequireConfirmedEmail = true;
+                opt.SignIn.RequireConfirmedAccount = true;
+                opt.User.RequireUniqueEmail = true;
+            })
+            .AddRoles<IdentityRole<Guid>>()
+            .AddDefaultTokenProviders()
+            .AddEntityFrameworkStores<ApplicationDbContext>();
 
         services.AddSingleton(TimeProvider.System);
-        services.AddTransient<IIdentityService, IdentityService>();
-
-        services.AddAuthorization(options =>
-            options.AddPolicy(Policies.CanPurge, policy => policy.RequireRole(Roles.Administrator)));
+        services.AddTransient<IEmailService, SendGridEmailService>();
 
         return services;
     }

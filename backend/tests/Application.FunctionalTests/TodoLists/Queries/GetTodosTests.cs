@@ -25,7 +25,7 @@ public class GetTodosTests : BaseTestFixture
     {
         await RunAsDefaultUserAsync();
 
-        await AddAsync(new TodoList
+        await AddAsync(new NoteList
         {
             Title = "Shopping",
             Colour = Colour.Blue,

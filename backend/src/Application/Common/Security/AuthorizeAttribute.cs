@@ -1,9 +1,9 @@
-﻿namespace TaskFree.Application.Common.Security;
+﻿namespace Backend.Application.Common.Security;
 
 /// <summary>
 /// Specifies the class this attribute is applied to requires authorization.
 /// </summary>
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public class AuthorizeAttribute : Attribute
 {
     /// <summary>
@@ -14,10 +14,10 @@ public class AuthorizeAttribute : Attribute
     /// <summary>
     /// Gets or sets a comma delimited list of roles that are allowed to access the resource.
     /// </summary>
-    public string Roles { get; set; } = string.Empty;
+    public string Role { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the policy name that determines access to the resource.
     /// </summary>
-    public string Policy { get; set; } = string.Empty;
+    public string Permission { get; set; } = string.Empty;
 }

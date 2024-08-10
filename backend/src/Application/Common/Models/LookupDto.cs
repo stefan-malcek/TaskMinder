@@ -1,19 +1,11 @@
-﻿using TaskFree.Domain.Entities;
+﻿using Backend.Application.Common.Mappings;
+using Backend.Domain.Entities;
 
-namespace TaskFree.Application.Common.Models;
+namespace Backend.Application.Common.Models;
 
-public class LookupDto
+public class LookupDto : IMapFrom<NoteList>
 {
-    public int Id { get; init; }
+    public Guid Id { get; init; }
 
-    public string? Title { get; init; }
-
-    private class Mapping : Profile
-    {
-        public Mapping()
-        {
-            CreateMap<TodoList, LookupDto>();
-            CreateMap<TodoItem, LookupDto>();
-        }
-    }
+    public string Title { get; init; } = null!;
 }

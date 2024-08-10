@@ -1,24 +1,14 @@
-﻿using TaskFree.Application.Common.Interfaces;
-using TaskFree.Domain.Common;
+﻿using Backend.Application.Common.Interfaces;
+using Backend.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using UUIDNext;
 
-namespace TaskFree.Infrastructure.Data.Interceptors;
+namespace Backend.Infrastructure.Data.Interceptors;
 
-public class AuditableEntityInterceptor : SaveChangesInterceptor
+public class AuditableEntityInterceptor(ICurrentUser user, TimeProvider dateTime) : SaveChangesInterceptor
 {
-    private readonly IUser _user;
-    private readonly TimeProvider _dateTime;
-
-    public AuditableEntityInterceptor(
-        IUser user,
-        TimeProvider dateTime)
-    {
-        _user = user;
-        _dateTime = dateTime;
-    }
-
     public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {
         UpdateEntities(eventData.Context);
@@ -26,7 +16,8 @@ public class AuditableEntityInterceptor : SaveChangesInterceptor
         return base.SavingChanges(eventData, result);
     }
 
-    public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
+    public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData,
+        InterceptionResult<int> result, CancellationToken cancellationToken = default)
     {
         UpdateEntities(eventData.Context);
 
@@ -37,18 +28,40 @@ public class AuditableEntityInterceptor : SaveChangesInterceptor
     {
         if (context == null) return;
 
-        foreach (var entry in context.ChangeTracker.Entries<BaseAuditableEntity>())
+        foreach (var entry in context.ChangeTracker.Entries<BaseCreatedAtEntity>())
         {
             if (entry.State == EntityState.Added)
             {
-                entry.Entity.CreatedBy = _user.Id;
-                entry.Entity.Created = _dateTime.GetUtcNow();
-            } 
+                // In some cases we set IDs manually and need to preserve them
+                // (e.g. connecting domain User to identity AspNetUser)
+                if (entry.Entity.Id == default)
+                {
+                    entry.Entity.Id = Uuid.NewDatabaseFriendly(Database.PostgreSql);
+                }
+
+                entry.Entity.CreatedAt = dateTime.GetUtcNow();
+            }
+        }
+
+        foreach (var entry in context.ChangeTracker.Entries<BaseAuditableEntity>())
+        {
+            // In some cases we set IDs manually and need to preserve them
+            // (e.g. connecting domain User to identity AspNetUser)
+            if (entry.State == EntityState.Added)
+            {
+                if (entry.Entity.Id == default)
+                {
+                    entry.Entity.Id = Uuid.NewDatabaseFriendly(Database.PostgreSql);
+                }
+
+                entry.Entity.CreatedBy = user?.Id;
+                entry.Entity.CreatedAt = dateTime.GetUtcNow();
+            }
 
             if (entry.State == EntityState.Added || entry.State == EntityState.Modified || entry.HasChangedOwnedEntities())
             {
-                entry.Entity.LastModifiedBy = _user.Id;
-                entry.Entity.LastModified = _dateTime.GetUtcNow();
+                entry.Entity.LastModifiedBy = user?.Id;
+                entry.Entity.LastModifiedAt = dateTime.GetUtcNow();
             }
         }
     }
@@ -57,8 +70,8 @@ public class AuditableEntityInterceptor : SaveChangesInterceptor
 public static class Extensions
 {
     public static bool HasChangedOwnedEntities(this EntityEntry entry) =>
-        entry.References.Any(r => 
-            r.TargetEntry != null && 
-            r.TargetEntry.Metadata.IsOwned() && 
+        entry.References.Any(r =>
+            r.TargetEntry != null &&
+            r.TargetEntry.Metadata.IsOwned() &&
             (r.TargetEntry.State == EntityState.Added || r.TargetEntry.State == EntityState.Modified));
 }

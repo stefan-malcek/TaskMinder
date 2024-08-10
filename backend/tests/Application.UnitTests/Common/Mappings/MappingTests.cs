@@ -30,9 +30,9 @@ public class MappingTests
     }
 
     [Test]
-    [TestCase(typeof(TodoList), typeof(TodoListDto))]
+    [TestCase(typeof(NoteList), typeof(TodoListDto))]
     [TestCase(typeof(TodoItem), typeof(TodoItemDto))]
-    [TestCase(typeof(TodoList), typeof(LookupDto))]
+    [TestCase(typeof(NoteList), typeof(LookupDto))]
     [TestCase(typeof(TodoItem), typeof(LookupDto))]
     [TestCase(typeof(TodoItem), typeof(TodoItemBriefDto))]
     public void ShouldSupportMappingFromSourceToDestination(Type source, Type destination)

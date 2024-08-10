@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
-using TaskFree.Application.Common.Interfaces;
+using Backend.Application.Common.Interfaces;
 using Microsoft.Extensions.Logging;
 
-namespace TaskFree.Application.Common.Behaviours;
+namespace Backend.Application.Common.Behaviours;
 
 public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
 {
@@ -39,9 +39,9 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
             var userId = _user.Id ?? string.Empty;
             var userName = string.Empty;
 
-            if (!string.IsNullOrEmpty(userId))
+            if (Guid.TryParse(userId, out var userIdentifier))
             {
-                userName = await _identityService.GetUserNameAsync(userId);
+                userName = await _identityService.GetUserEmailAsync(userIdentifier);
             }
 
             _logger.LogWarning("TaskFree Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) {@UserId} {@UserName} {@Request}",

@@ -1,12 +1,10 @@
-﻿namespace TaskFree.Domain.Common;
+﻿namespace Backend.Domain.Common;
 
-public abstract class BaseAuditableEntity : BaseEntity
+public abstract class BaseAuditableEntity : BaseCreatedAtEntity
 {
-    public DateTimeOffset Created { get; set; }
+    public Guid? CreatedBy { get; set; }
 
-    public string? CreatedBy { get; set; }
+    public DateTimeOffset LastModifiedAt { get; set; }
 
-    public DateTimeOffset LastModified { get; set; }
-
-    public string? LastModifiedBy { get; set; }
+    public Guid? LastModifiedBy { get; set; }
 }

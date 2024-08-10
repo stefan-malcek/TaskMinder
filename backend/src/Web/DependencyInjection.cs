@@ -1,81 +1,56 @@
-﻿using Azure.Identity;
-using TaskFree.Application.Common.Interfaces;
-using TaskFree.Infrastructure.Data;
-using TaskFree.Web.Services;
+﻿using System.Text.Json.Serialization;
+using Backend.Application.Common.Interfaces;
+using Backend.Application.Common.Options;
+using Backend.Infrastructure.Data;
+using Backend.Web.Infrastructure;
+using Backend.Web.Services;
+using Backend.Web.Swagger;
 using Microsoft.AspNetCore.Mvc;
 
-using NSwag;
-using NSwag.Generation.Processors.Security;
-using ZymLabs.NSwag.FluentValidation;
-
-namespace Microsoft.Extensions.DependencyInjection;
+namespace Backend.Web;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddWebServices(this IServiceCollection services)
+    public static IServiceCollection AddWebServices(this IServiceCollection services, ConfigurationManager configuration)
     {
+        services.AddWebApiOptions(configuration);
+
+        var corsSettings = configuration.GetSection(nameof(CorsSettings)).Get<CorsSettings>();
+        ArgumentNullException.ThrowIfNull(corsSettings);
+
+        services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(policy =>
+            {
+                policy.WithOrigins(corsSettings.Origins)
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+        });
+
         services.AddDatabaseDeveloperPageExceptionFilter();
 
-        services.AddScoped<IUser, CurrentUser>();
+        services.AddScoped<ICurrentUser, CurrentUser>();
+        services.AddTransient<IAuthTokenService, AuthTokenService>();
 
         services.AddHttpContextAccessor();
+
+        services.AddAuth(configuration);
+
+        services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+        services.Configure<JsonOptions>(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
         services.AddHealthChecks()
             .AddDbContextCheck<ApplicationDbContext>();
 
         services.AddExceptionHandler<CustomExceptionHandler>();
 
-        services.AddRazorPages();
-
-        services.AddScoped(provider =>
-        {
-            var validationRules = provider.GetService<IEnumerable<FluentValidationRule>>();
-            var loggerFactory = provider.GetService<ILoggerFactory>();
-
-            return new FluentValidationSchemaProcessor(provider, validationRules, loggerFactory);
-        });
-
         // Customise default API behaviour
-        services.Configure<ApiBehaviorOptions>(options =>
-            options.SuppressModelStateInvalidFilter = true);
+        services.Configure<ApiBehaviorOptions>(options => options.SuppressModelStateInvalidFilter = true);
 
-        services.AddEndpointsApiExplorer();
+        services.AddSwaggerDocumentation();
 
-        services.AddOpenApiDocument((configure, sp) =>
-        {
-            configure.Title = "TaskFree API";
-
-            // Add the fluent validations schema processor
-            var fluentValidationSchemaProcessor = 
-                sp.CreateScope().ServiceProvider.GetRequiredService<FluentValidationSchemaProcessor>();
-
-            // BUG: SchemaProcessors is missing in NSwag 14 (https://github.com/RicoSuter/NSwag/issues/4524#issuecomment-1811897079)
-            // configure.SchemaProcessors.Add(fluentValidationSchemaProcessor);
-
-            // Add JWT
-            configure.AddSecurity("JWT", Enumerable.Empty<string>(), new OpenApiSecurityScheme
-            {
-                Type = OpenApiSecuritySchemeType.ApiKey,
-                Name = "Authorization",
-                In = OpenApiSecurityApiKeyLocation.Header,
-                Description = "Type into the textbox: Bearer {your JWT token}."
-            });
-
-            configure.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("JWT"));
-        });
-
-        return services;
-    }
-
-    public static IServiceCollection AddKeyVaultIfConfigured(this IServiceCollection services, ConfigurationManager configuration)
-    {
-        var keyVaultUri = configuration["KeyVaultUri"];
-        if (!string.IsNullOrWhiteSpace(keyVaultUri))
-        {
-            configuration.AddAzureKeyVault(
-                new Uri(keyVaultUri),
-                new DefaultAzureCredential());
-        }
+        services.AddApplicationInsightsTelemetry();
 
         return services;
     }

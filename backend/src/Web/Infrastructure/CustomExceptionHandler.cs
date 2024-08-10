@@ -1,8 +1,8 @@
-﻿using TaskFree.Application.Common.Exceptions;
+﻿using Backend.Application.Common.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
-namespace TaskFree.Web.Infrastructure;
+namespace Backend.Web.Infrastructure;
 
 public class CustomExceptionHandler : IExceptionHandler
 {
@@ -13,10 +13,11 @@ public class CustomExceptionHandler : IExceptionHandler
         // Register known exception types and handlers.
         _exceptionHandlers = new()
             {
-                { typeof(ValidationException), HandleValidationException },
-                { typeof(NotFoundException), HandleNotFoundException },
-                { typeof(UnauthorizedAccessException), HandleUnauthorizedAccessException },
-                { typeof(ForbiddenAccessException), HandleForbiddenAccessException },
+                { typeof(ValidationException), HandleValidationExceptionAsync },
+                { typeof(BadHttpRequestException), HandleBadRequestExceptionAsync },
+                { typeof(NotFoundException), HandleNotFoundExceptionAsync },
+                { typeof(UnauthorizedAccessException), HandleUnauthorizedAccessExceptionAsync },
+                { typeof(ForbiddenAccessException), HandleForbiddenAccessExceptionAsync },
             };
     }
 
@@ -30,58 +31,81 @@ public class CustomExceptionHandler : IExceptionHandler
             return true;
         }
 
-        return false;
+        await HandleUnknownExceptionAsync(httpContext);
+
+        return true;
     }
 
-    private async Task HandleValidationException(HttpContext httpContext, Exception ex)
+    private async Task HandleValidationExceptionAsync(HttpContext httpContext, Exception ex)
     {
         var exception = (ValidationException)ex;
 
         httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-
         await httpContext.Response.WriteAsJsonAsync(new ValidationProblemDetails(exception.Errors)
         {
             Status = StatusCodes.Status400BadRequest,
-            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1"
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+            Detail = exception.ErrorName
         });
     }
 
-    private async Task HandleNotFoundException(HttpContext httpContext, Exception ex)
+    private async Task HandleBadRequestExceptionAsync(HttpContext httpContext, Exception ex)
+    {
+        httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+
+        await httpContext.Response.WriteAsJsonAsync(new ValidationProblemDetails(
+            new Dictionary<string, string[]> { { "Body", ["Body is probably missing."] } })
+        {
+            Status = StatusCodes.Status400BadRequest,
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+            Detail = ValidationErrors.ValidationFailed,
+        });
+    }
+
+    private async Task HandleNotFoundExceptionAsync(HttpContext httpContext, Exception ex)
     {
         var exception = (NotFoundException)ex;
 
         httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
 
-        await httpContext.Response.WriteAsJsonAsync(new ProblemDetails()
+        await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
         {
             Status = StatusCodes.Status404NotFound,
             Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4",
-            Title = "The specified resource was not found.",
             Detail = exception.Message
         });
     }
 
-    private async Task HandleUnauthorizedAccessException(HttpContext httpContext, Exception ex)
+    private async Task HandleUnauthorizedAccessExceptionAsync(HttpContext httpContext, Exception ex)
     {
         httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
 
         await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
         {
             Status = StatusCodes.Status401Unauthorized,
-            Title = "Unauthorized",
-            Type = "https://tools.ietf.org/html/rfc7235#section-3.1"
+            Type = "https://tools.ietf.org/html/rfc7235#section-3.1",
+            Detail = ex.Message
         });
     }
 
-    private async Task HandleForbiddenAccessException(HttpContext httpContext, Exception ex)
+    private async Task HandleForbiddenAccessExceptionAsync(HttpContext httpContext, Exception ex)
     {
         httpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
 
         await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
         {
             Status = StatusCodes.Status403Forbidden,
-            Title = "Forbidden",
-            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.3"
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.3",
+            Detail = "User is not authorized."
+        });
+    }
+
+    private async Task HandleUnknownExceptionAsync(HttpContext httpContext)
+    {
+        await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
+        {
+            Status = StatusCodes.Status500InternalServerError,
+            Detail = "Ooops. Something went wrong."
         });
     }
 }

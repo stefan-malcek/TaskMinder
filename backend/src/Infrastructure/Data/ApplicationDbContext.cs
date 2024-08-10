@@ -1,24 +1,45 @@
-﻿using System.Reflection;
-using TaskFree.Application.Common.Interfaces;
-using TaskFree.Domain.Entities;
-using TaskFree.Infrastructure.Identity;
+﻿using System.Diagnostics;
+using System.Reflection;
+using Backend.Application.Common.Interfaces;
+using Backend.Application.Common.Options;
+using Backend.Domain.Entities;
+using Backend.Infrastructure.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
-namespace TaskFree.Infrastructure.Data;
+namespace Backend.Infrastructure.Data;
 
-public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplicationDbContext
+public class ApplicationDbContext(
+    DbContextOptions<ApplicationDbContext> options,
+    IOptions<DbContextSettings> dbSettings)
+    : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>(options), IApplicationDbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
-
-    public DbSet<TodoList> TodoLists => Set<TodoList>();
-
-    public DbSet<TodoItem> TodoItems => Set<TodoItem>();
-
+    public DbSet<NoteList> NoteLists => Set<NoteList>();
     protected override void OnModelCreating(ModelBuilder builder)
     {
+        builder.HasPostgresExtension("unaccent");
+        builder.HasPostgresExtension("citext");
+
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
         base.OnModelCreating(builder);
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (dbSettings.Value.EnableSensitiveLogging)
+        {
+            optionsBuilder.LogTo(o => Debug.WriteLine(o), LogLevel.Information)
+                .EnableDetailedErrors()
+                .EnableSensitiveDataLogging()
+                .ConfigureWarnings(warningsActions =>
+                {
+                    warningsActions.Log(CoreEventId.FirstWithoutOrderByAndFilterWarning, CoreEventId.RowLimitingOperationWithoutOrderByWarning);
+                });
+        }
     }
 }

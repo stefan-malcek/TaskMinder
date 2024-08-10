@@ -1,57 +1,65 @@
-using TaskFree.Infrastructure.Data;
+using Backend.Application;
+using Backend.Infrastructure;
+using Backend.Infrastructure.Extensions;
+using Backend.Web;
+using Backend.Web.Infrastructure;
+using Serilog;
 
-var builder = WebApplication.CreateBuilder(args);
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateLogger();
 
-builder.AddServiceDefaults();
+Log.Information("Starting up");
 
-// Add services to the container.
-builder.Services.AddKeyVaultIfConfigured(builder.Configuration);
-
-builder.Services.AddApplicationServices();
-builder.Services.AddInfrastructureServices(builder.Configuration);
-builder.Services.AddWebServices();
-builder.Services.AddCors();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+try
 {
-    await app.InitialiseDatabaseAsync();
+    var builder = WebApplication.CreateBuilder(args);
+
+    // Add services to the container.
+    builder.Services.AddApplicationServices();
+
+    var databaseConnection = builder.Configuration.GetConnectionString("DefaultConnection");
+    builder.Services.AddInfrastructureServices(databaseConnection);
+    builder.Services.AddWebServices(builder.Configuration);
+    builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));
+
+    var app = builder.Build();
+
+    await app.InitialiseAsync();
+    if (!app.Environment.IsDevelopment())
+    {
+        // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+        app.UseHsts();
+        app.UseHttpsRedirection();
+    }
+
+    app.UseHealthChecks("/health");
+    app.UseStaticFiles();
+
+    app.UseSwagger();
+    app.UseSwaggerUI();
+
+    app.UseExceptionHandler(options => { });
+
+    app.UseCors();
+
+    app.MapEndpoints();
+    app.MapGet("/", () => "Web API v1.0");
+
+    app.Run();
+    return 0;
 }
-else
+catch (Exception ex)
 {
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    Log.Fatal(ex, "Unhandled exception");
+    return 1;
+}
+finally
+{
+    await Log.CloseAndFlushAsync();
 }
 
-app.UseHttpsRedirection();
-app.UseCors(static builder =>
-    builder.AllowAnyMethod()
-        .AllowAnyHeader()
-        .AllowAnyOrigin());
-app.UseStaticFiles();
-
-app.UseSwaggerUi(settings =>
+namespace Backend.Web
 {
-    settings.Path = "/api";
-    settings.DocumentPath = "/api/specification.json";
-});
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller}/{action=Index}/{id?}");
-
-app.MapRazorPages();
-
-app.MapFallbackToFile("index.html");
-
-app.UseExceptionHandler(options => { });
-
-app.Map("/", () => Results.Redirect("/api"));
-
-app.MapEndpoints();
-
-app.Run();
-
-public partial class Program { }
+    public class Program;
+}

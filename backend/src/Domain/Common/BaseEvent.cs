@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace TaskFree.Domain.Common;
+namespace Backend.Domain.Common;
 
 public abstract class BaseEvent : INotification
 {

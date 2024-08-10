@@ -1,16 +1,18 @@
-﻿using TaskFree.Application.Common.Models;
+﻿using Backend.Application.Common.Models;
+using Backend.Application.Common.Models.Identity;
 
-namespace TaskFree.Application.Common.Interfaces;
+namespace Backend.Application.Common.Interfaces;
 
 public interface IIdentityService
 {
-    Task<string?> GetUserNameAsync(string userId);
-
-    Task<bool> IsInRoleAsync(string userId, string role);
-
-    Task<bool> AuthorizeAsync(string userId, string policyName);
-
-    Task<(Result Result, string UserId)> CreateUserAsync(string userName, string password);
-
-    Task<Result> DeleteUserAsync(string userId);
+    Task<string?> GetUserEmailAsync(Guid userId);
+    Task<UserViewModel?> GetUserByEmailAsync(string email);
+    Task<UserViewModel?> GetUserAsync(Guid userId);
+    Task<bool> IsEmailTakenAsync(string email);
+    Task<(Result Result, UserViewModel User)> CreateClientUserAsync(string email, string password);
+    Task<string> GenerateEmailConfirmationTokenAsync(Guid userId);
+    Task<string> GeneratePasswordResetTokenAsync(Guid id);
+    Task<Result> ResetPasswordAsync(Guid userId, string code, string password);
+    Task<Result> ConfirmEmailAsync(Guid userId, string code);
+    Task<UserViewModel?> VerifyUserAsync(string email, string password);
 }
