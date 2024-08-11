@@ -16,7 +16,6 @@ public class CreateNoteListCommandHandler(IApplicationDbContext context) : IRequ
         {
             Title = request.Title
         };
-
         context.NoteLists.Add(entity);
         await context.SaveChangesAsync(cancellationToken);
 

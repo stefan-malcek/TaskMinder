@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -24,6 +25,15 @@ public class ApplicationDbContext(
         builder.HasPostgresExtension("unaccent");
         builder.HasPostgresExtension("citext");
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+        foreach (var entityType in builder.Model.GetEntityTypes())
+        {
+            foreach (var property in entityType.GetProperties()
+                         .Where(p => p.IsPrimaryKey() && p.ClrType == typeof(Guid)))
+            {
+                property.ValueGenerated = ValueGenerated.Never;
+            }
+        }
 
         base.OnModelCreating(builder);
     }
