@@ -7,55 +7,6 @@ namespace Backend.Application.Common.Exceptions;
 
 public static class ThrowIf
 {
-    public static class Registration
-    {
-        public static void Failed(Result result)
-        {
-            if (result.Succeeded)
-            {
-                return;
-            }
-
-            if (result.Errors.Any(a => a.Contains("Password")))
-            {
-                throw new ValidationException(ValidationErrors.WeakPassword, result.Errors);
-            }
-
-            throw new ValidationException(ValidationErrors.RegistrationFailed, result.Errors);
-        }
-    }
-
-    public static class EmailConfirmation
-    {
-        public static void Failed(Result result)
-        {
-            if (result.Succeeded)
-            {
-                return;
-            }
-
-            throw new ValidationException(ValidationErrors.EmailConfirmationFailed, result.Errors);
-        }
-    }
-
-    public static class PasswordReset
-    {
-        public static void Failed(Result result)
-        {
-            if (result.Succeeded)
-            {
-                return;
-            }
-
-            if (result.Errors.Any(a => a.Contains("Password")))
-            {
-                throw new ValidationException(ValidationErrors.WeakPassword, result.Errors);
-            }
-
-            throw new ValidationException(ValidationErrors.PasswordResetFailed, result.Errors);
-        }
-    }
-
     public static class Check
     {
         public static void Failed(bool succeeded, string error)

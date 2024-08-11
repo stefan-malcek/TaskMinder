@@ -23,7 +23,6 @@ public class ApplicationDbContext(
     {
         builder.HasPostgresExtension("unaccent");
         builder.HasPostgresExtension("citext");
-
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
         base.OnModelCreating(builder);

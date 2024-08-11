@@ -1,4 +1,5 @@
 ﻿using Backend.Application.Common.Exceptions;
+using Backend.Application.Common.Models;
 using Backend.Application.NoteLists.Commands.CreateNoteList;
 using Backend.Web.Infrastructure;
 
@@ -20,8 +21,9 @@ public class NoteLists : EndpointGroupBase
             .ProducesProblem(StatusCodes.Status403Forbidden);
     }
 
-    public async Task CreateNoteListAsync(ISender sender, CreateNoteListCommand createNoteList)
+    public async Task<CreatedEntityDto> CreateNoteListAsync(ISender sender, CreateNoteListCommand createNoteList)
     {
-        await sender.Send(createNoteList);
+        var id = await sender.Send(createNoteList);
+        return new CreatedEntityDto { Id = id };
     }
 }

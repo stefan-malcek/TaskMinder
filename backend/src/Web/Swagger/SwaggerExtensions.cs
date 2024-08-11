@@ -26,7 +26,11 @@ public static class SwaggerExtensions
         return services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc($"v{WebApiVersion.One}",
-                    new OpenApiInfo { Title = "Backend API" });
+                    new OpenApiInfo
+                    {
+                        Title = "Backend API",
+                        Version = WebApiVersion.One.ToString()
+                    });
 
                 options.DocInclusionPredicate((name, api) => true);
 
