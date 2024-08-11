@@ -25,6 +25,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LocalEnvironment.ServiceDef
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LocalEnvironment.AppHost", "local\AppHost\LocalEnvironment.AppHost.csproj", "{0AB35A92-DD05-46C3-ABC4-9AB97EDD08D6}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataSeed", "backend\src\DataSeed\DataSeed.csproj", "{95664511-3300-4A89-9EAE-420D9B0917D3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,10 @@ Global
 		{0AB35A92-DD05-46C3-ABC4-9AB97EDD08D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0AB35A92-DD05-46C3-ABC4-9AB97EDD08D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0AB35A92-DD05-46C3-ABC4-9AB97EDD08D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95664511-3300-4A89-9EAE-420D9B0917D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95664511-3300-4A89-9EAE-420D9B0917D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95664511-3300-4A89-9EAE-420D9B0917D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95664511-3300-4A89-9EAE-420D9B0917D3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

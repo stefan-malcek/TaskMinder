@@ -8,13 +8,7 @@ public static class ValidationErrors
     public const string InvalidUser = nameof(InvalidUser);
 
     // Auth
-    public const string RegistrationFailed = nameof(RegistrationFailed);
-    public const string WeakPassword = nameof(WeakPassword);
-    public const string EmailNotUnique = nameof(EmailNotUnique);
-    public const string EmailConfirmationFailed = nameof(EmailConfirmationFailed);
-    public const string SignInFailed = nameof(SignInFailed);
-    public const string EmailNotConfirmed = nameof(EmailNotConfirmed);
-    public const string PasswordResetFailed = nameof(PasswordResetFailed);
+    public const string InvalidCredentials = nameof(InvalidCredentials);
 
     private static readonly Dictionary<string, string> Errors
         = new()
@@ -24,13 +18,7 @@ public static class ValidationErrors
             { GenericError, "Something went wrong." },
             { InvalidUser, "User is not valid." },
             // Auth
-            { RegistrationFailed, "Registration did not succeed." },
-            { WeakPassword, "Password does not match conditions: 8 chars, at least one number, at least one upper char and at least one lower case char." },
-            { EmailNotUnique, "Email is already taken." },
-            { EmailConfirmationFailed, "Email confirmation failed." },
-            { SignInFailed, "Sign in attempt failed." },
-            { EmailNotConfirmed, "Email hasn't been confirmed by user." },
-            { PasswordResetFailed, "Password reset failed." }
+            { InvalidCredentials, "Email or password is wrong." },
         };
 
     public static string GetDescription(string error)

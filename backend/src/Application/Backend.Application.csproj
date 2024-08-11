@@ -6,9 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Auth\Commands\ConfirmPasswordReset\.gitkeep" />
-    <None Remove="Auth\Commands\RequestPasswordReset\.gitkeep" />
-    <None Remove="Auth\Commands\LogIn\.gitkeep" />
     <None Remove="NoteLists\Commands\DeleteNoteList\.gitkeep" />
     <None Remove="NoteLists\Commands\MoveNoteList\.gitkeep" />
     <None Remove="NoteLists\Commands\RenameNoteList\.gitkeep" />
@@ -16,9 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Auth\Commands\ConfirmPasswordReset\.gitkeep" />
-    <Compile Include="Auth\Commands\RequestPasswordReset\.gitkeep" />
-    <Compile Include="Auth\Commands\LogIn\.gitkeep" />
     <Compile Include="NoteLists\Commands\DeleteNoteList\.gitkeep" />
     <Compile Include="NoteLists\Commands\MoveNoteList\.gitkeep" />
     <Compile Include="NoteLists\Commands\RenameNoteList\.gitkeep" />
