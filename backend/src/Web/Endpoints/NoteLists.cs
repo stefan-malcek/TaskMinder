@@ -2,6 +2,7 @@
 using Backend.Application.Common.Models;
 using Backend.Application.NoteLists.Commands;
 using Backend.Application.NoteLists.Commands.CreateNoteList;
+using Backend.Application.NoteLists.Commands.MoveNoteList;
 using Backend.Application.NoteLists.Commands.RenameNoteList;
 using Backend.Web.Infrastructure;
 
@@ -24,6 +25,15 @@ public class NoteLists : EndpointGroupBase
 
         root.MapPut(RenameNoteListAsync, "{id}/Rename")
             .WithEndpointDescription("Update the title of the given note list.", [
+                ValidationErrors.ValidationFailed
+            ])
+            .Produces(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        root.MapPut(MoveNoteListAsync, "{id}/Move")
+            .WithEndpointDescription("Move the given note list.", [
                 ValidationErrors.ValidationFailed
             ])
             .Produces(StatusCodes.Status200OK)
@@ -54,6 +64,16 @@ public class NoteLists : EndpointGroupBase
         {
             Id = id,
             SaveNoteList = saveNoteList
+        };
+        await sender.Send(command);
+    }
+
+    public async Task MoveNoteListAsync(ISender sender, Guid id, MoveNoteListDto moveNoteList)
+    {
+        MoveNoteListCommand command = new()
+        {
+            Id = id,
+            MoveNoteList = moveNoteList
         };
         await sender.Send(command);
     }

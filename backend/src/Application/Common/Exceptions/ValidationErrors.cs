@@ -10,6 +10,9 @@ public static class ValidationErrors
     // Auth
     public const string InvalidCredentials = nameof(InvalidCredentials);
 
+    // Note Lists
+    public const string InvalidNoteListParent = nameof(InvalidNoteListParent);
+
     private static readonly Dictionary<string, string> Errors
         = new()
         {
@@ -19,6 +22,8 @@ public static class ValidationErrors
             { InvalidUser, "User is not valid." },
             // Auth
             { InvalidCredentials, "Email or password is wrong." },
+            // Note Lists
+            { InvalidNoteListParent, "Parent is invalid. Cannot be self referenced." },
         };
 
     public static string GetDescription(string error)
