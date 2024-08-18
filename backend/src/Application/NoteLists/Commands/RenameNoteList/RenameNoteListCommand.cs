@@ -1,4 +1,4 @@
-﻿using Backend.Application.Common.Exceptions;
+﻿using Ardalis.GuardClauses;
 using Backend.Application.Common.Interfaces;
 using Backend.Domain.Entities;
 
@@ -17,9 +17,9 @@ internal class RenameNoteListCommandHandler(IApplicationDbContext context) : IRe
         SaveNoteListDto saveNoteList = request.SaveNoteList;
         NoteList? entity = await context.NoteLists
             .SingleOrDefaultAsync(n => n.Id == request.Id, cancellationToken);
-        ThrowIf.Entity.IsNotFound(request.Id, typeof(NoteList));
+        Guard.Against.NotFound(request.Id, entity);
 
-        entity!.Title = saveNoteList.Title;
+        entity.Title = saveNoteList.Title;
         await context.SaveChangesAsync(cancellationToken);
     }
 }

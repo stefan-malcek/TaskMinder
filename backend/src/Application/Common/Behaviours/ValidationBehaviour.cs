@@ -1,5 +1,4 @@
 ﻿using Backend.Application.Common.Exceptions;
-using ValidationException = Backend.Application.Common.Exceptions.ValidationException;
 
 namespace Backend.Application.Common.Behaviours;
 
@@ -24,7 +23,7 @@ public class ValidationBehaviour<TRequest, TResponse>(IEnumerable<IValidator<TRe
 
             if (failures.Any())
             {
-                throw new ValidationException(failures.Count == 1
+                throw new AppValidationException(failures.Count == 1
                     ? ValidationErrors.GetErrorCode(failures.First().ErrorCode)
                     : ValidationErrors.ValidationFailed
                     , failures);

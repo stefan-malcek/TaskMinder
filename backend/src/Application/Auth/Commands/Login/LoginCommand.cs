@@ -1,4 +1,6 @@
-﻿using Backend.Application.Common.Exceptions;
+﻿using Ardalis.GuardClauses;
+using Backend.Application.Common.Exceptions;
+using Backend.Application.Common.Extensions;
 using Backend.Application.Common.Interfaces;
 
 namespace Backend.Application.Auth.Commands.Login;
@@ -15,7 +17,7 @@ internal class LoginCommandHandler(IIdentityService identityService, IAuthTokenS
     public async Task<LoggedUserDto> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
         var user = await identityService.VerifyUserAsync(request.Email, request.Password);
-        ThrowIf.Check.Failed(user is not null, ValidationErrors.InvalidCredentials);
+        Guard.Against.InvalidBusinessRule(user, x => x is not null, ValidationErrors.InvalidCredentials);
 
         var token = authTokenService.GenerateToken(user!.Id);
         return new LoggedUserDto

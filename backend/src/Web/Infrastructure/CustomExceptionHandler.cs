@@ -13,7 +13,7 @@ public class CustomExceptionHandler : IExceptionHandler
         // Register known exception types and handlers.
         _exceptionHandlers = new()
             {
-                { typeof(ValidationException), HandleValidationExceptionAsync },
+                { typeof(AppValidationException), HandleValidationExceptionAsync },
                 { typeof(BadHttpRequestException), HandleBadRequestExceptionAsync },
                 { typeof(NotFoundException), HandleNotFoundExceptionAsync },
                 { typeof(UnauthorizedAccessException), HandleUnauthorizedAccessExceptionAsync },
@@ -38,7 +38,7 @@ public class CustomExceptionHandler : IExceptionHandler
 
     private async Task HandleValidationExceptionAsync(HttpContext httpContext, Exception ex)
     {
-        var exception = (ValidationException)ex;
+        var exception = (AppValidationException)ex;
 
         httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
         await httpContext.Response.WriteAsJsonAsync(new ValidationProblemDetails(exception.Errors)

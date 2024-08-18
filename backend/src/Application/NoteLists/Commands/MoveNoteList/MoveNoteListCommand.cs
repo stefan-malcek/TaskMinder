@@ -1,4 +1,6 @@
-﻿using Backend.Application.Common.Exceptions;
+﻿using Ardalis.GuardClauses;
+using Backend.Application.Common.Exceptions;
+using Backend.Application.Common.Extensions;
 using Backend.Application.Common.Interfaces;
 using Backend.Domain.Entities;
 
@@ -17,10 +19,10 @@ internal class MoveNoteListCommandHandler(IApplicationDbContext context) : IRequ
         MoveNoteListDto moveNoteList = request.MoveNoteList;
         NoteList? entity = await context.NoteLists
             .SingleOrDefaultAsync(n => n.Id == request.Id, cancellationToken);
-        ThrowIf.Entity.IsNotFound(request.Id, typeof(NoteList));
-        ThrowIf.Check.Failed(request.Id != moveNoteList.ParentId, ValidationErrors.InvalidNoteListParent);
+        Guard.Against.NotFound(request.Id, entity);
+        Guard.Against.InvalidBusinessRule(moveNoteList, x => x.ParentId != request.Id, ValidationErrors.InvalidNoteListParent);
 
-        entity!.ParentId = moveNoteList.ParentId;
+        entity.ParentId = moveNoteList.ParentId;
         await context.SaveChangesAsync(cancellationToken);
     }
 }

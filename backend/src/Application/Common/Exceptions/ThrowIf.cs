@@ -13,7 +13,7 @@ public static class ThrowIf
         {
             if (!succeeded)
             {
-                throw new ValidationException(error);
+                throw new AppValidationException(error);
             }
         }
 
@@ -21,7 +21,7 @@ public static class ThrowIf
         {
             if (!result.Succeeded)
             {
-                throw new ValidationException(error, result.Errors);
+                throw new AppValidationException(error, result.Errors);
             }
         }
     }
@@ -61,7 +61,7 @@ public static class ThrowIf
         {
             if (input is null)
             {
-                throw new ValidationException(error, new[] { $"Value: ({key}) is not valid." });
+                throw new AppValidationException(error, new[] { $"Value: ({key}) is not valid." });
             }
 
             return input;
