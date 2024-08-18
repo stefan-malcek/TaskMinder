@@ -5,16 +5,19 @@ namespace Backend.Application.NoteLists.Commands.CreateNoteList;
 
 public record CreateNoteListCommand : IRequest<Guid>
 {
-    public string Title { get; init; } = null!;
+    public Guid? ParentId { get; init; }
+    public required SaveNoteListDto SaveNoteList { get; init; }
 }
 
-public class CreateNoteListCommandHandler(IApplicationDbContext context) : IRequestHandler<CreateNoteListCommand, Guid>
+internal class CreateNoteListCommandHandler(IApplicationDbContext context) : IRequestHandler<CreateNoteListCommand, Guid>
 {
     public async Task<Guid> Handle(CreateNoteListCommand request, CancellationToken cancellationToken)
     {
-        var entity = new NoteList
+        SaveNoteListDto saveNoteList = request.SaveNoteList;
+        NoteList entity = new()
         {
-            Title = request.Title
+            Title = saveNoteList.Title,
+            ParentId = request.ParentId
         };
         context.NoteLists.Add(entity);
         await context.SaveChangesAsync(cancellationToken);

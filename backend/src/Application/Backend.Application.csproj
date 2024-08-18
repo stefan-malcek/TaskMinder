@@ -8,14 +8,12 @@
   <ItemGroup>
     <None Remove="NoteLists\Commands\DeleteNoteList\.gitkeep" />
     <None Remove="NoteLists\Commands\MoveNoteList\.gitkeep" />
-    <None Remove="NoteLists\Commands\RenameNoteList\.gitkeep" />
     <None Remove="NoteLists\Queries\GetNoteLists\.gitkeep" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Include="NoteLists\Commands\DeleteNoteList\.gitkeep" />
     <Compile Include="NoteLists\Commands\MoveNoteList\.gitkeep" />
-    <Compile Include="NoteLists\Commands\RenameNoteList\.gitkeep" />
     <Compile Include="NoteLists\Queries\GetNoteLists\.gitkeep" />
   </ItemGroup>
 

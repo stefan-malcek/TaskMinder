@@ -4,8 +4,7 @@ public class CreateNoteListCommandValidator : AbstractValidator<CreateNoteListCo
 {
     public CreateNoteListCommandValidator()
     {
-        RuleFor(v => v.Title)
-            .NotEmpty()
-            .MaximumLength(200);
+        RuleFor(v => v.SaveNoteList)
+            .SetValidator(new SaveNoteListDtoValidator());
     }
 }
