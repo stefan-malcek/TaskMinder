@@ -6,10 +6,8 @@ public class LoggedUserDtoSwaggerDoc : AbstractValidator<LoggedUserDto>
     {
         RuleFor(r => r.Token)
             .NotEmpty();
-
         RuleFor(r => r.Id)
             .NotNull();
-
         RuleFor(r => r.Email)
             .NotEmpty();
     }

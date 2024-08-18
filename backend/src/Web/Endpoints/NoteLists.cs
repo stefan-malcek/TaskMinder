@@ -2,6 +2,7 @@
 using Backend.Application.Common.Models;
 using Backend.Application.NoteLists.Commands;
 using Backend.Application.NoteLists.Commands.CreateNoteList;
+using Backend.Application.NoteLists.Commands.RenameNoteList;
 using Backend.Web.Infrastructure;
 
 namespace Backend.Web.Endpoints;
@@ -18,29 +19,43 @@ public class NoteLists : EndpointGroupBase
                 ValidationErrors.ValidationFailed
             ])
             .Produces(StatusCodes.Status200OK)
-            .ProducesProblem(StatusCodes.Status401Unauthorized)
-            .ProducesProblem(StatusCodes.Status403Forbidden);
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status401Unauthorized);
 
-        root.MapPost(CreateSubNoteListAsync, "{id}/NoteLists")
-            .WithEndpointDescription("Create a new sub note list.", [
+        root.MapPut(RenameNoteListAsync, "{id}/Rename")
+            .WithEndpointDescription("Update the title of the given note list.", [
                 ValidationErrors.ValidationFailed
             ])
             .Produces(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
-            .ProducesProblem(StatusCodes.Status403Forbidden);
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        root.MapPost(CreateSubNoteListAsync, "{id}/NoteLists")
+            .WithEndpointDescription("Create a new sub note list for the given parent.", [
+                ValidationErrors.ValidationFailed
+            ])
+            .Produces(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status404NotFound);
     }
 
     public async Task<CreatedEntityDto> CreateNoteListAsync(ISender sender, SaveNoteListDto saveNoteList)
     {
-        CreateNoteListCommand command = new()
+        CreateNoteListCommand command = new() { SaveNoteList = saveNoteList };
+        Guid entityId = await sender.Send(command);
+        return new CreatedEntityDto { Id = entityId };
+    }
+
+    public async Task RenameNoteListAsync(ISender sender, Guid id, SaveNoteListDto saveNoteList)
+    {
+        RenameNoteListCommand command = new()
         {
+            Id = id,
             SaveNoteList = saveNoteList
         };
-        Guid entityId = await sender.Send(command);
-        return new CreatedEntityDto
-        {
-            Id = entityId
-        };
+        await sender.Send(command);
     }
 
     public async Task<CreatedEntityDto> CreateSubNoteListAsync(ISender sender, Guid id, SaveNoteListDto saveNoteList)
@@ -51,9 +66,6 @@ public class NoteLists : EndpointGroupBase
             ParentId = id
         };
         Guid entityId = await sender.Send(command);
-        return new CreatedEntityDto
-        {
-            Id = entityId
-        };
+        return new CreatedEntityDto { Id = entityId };
     }
 }

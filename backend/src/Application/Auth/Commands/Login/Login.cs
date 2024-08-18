@@ -9,7 +9,7 @@ public record LoginCommand : IRequest<LoggedUserDto>
     public string Password { get; init; } = null!;
 }
 
-public class LoginCommandHandler(IIdentityService identityService, IAuthTokenService authTokenService)
+internal class LoginCommandHandler(IIdentityService identityService, IAuthTokenService authTokenService)
     : IRequestHandler<LoginCommand, LoggedUserDto>
 {
     public async Task<LoggedUserDto> Handle(LoginCommand request, CancellationToken cancellationToken)

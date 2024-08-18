@@ -4,7 +4,7 @@ public class RenameNoteListCommandValidator : AbstractValidator<RenameNoteListCo
 {
     public RenameNoteListCommandValidator()
     {
-        RuleFor(v => v.CreateNoteList)
+        RuleFor(v => v.SaveNoteList)
             .SetValidator(new SaveNoteListDtoValidator());
     }
 }
