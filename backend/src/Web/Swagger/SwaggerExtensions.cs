@@ -34,8 +34,8 @@ public static class SwaggerExtensions
 
                 options.DocInclusionPredicate((name, api) => true);
 
-                options.IncludeXmlComments(FormatPathForXmlDocumentation(typeof(Program)));
-                options.IncludeXmlComments(FormatPathForXmlDocumentation(typeof(Application.DependencyInjection)));
+                //options.IncludeXmlComments(FormatPathForXmlDocumentation(typeof(Program)));
+                //options.IncludeXmlComments(FormatPathForXmlDocumentation(typeof(Application.DependencyInjection)));
 
                 options.OperationFilter<AuthHeaderOperationFilter>();
 

@@ -20,6 +20,8 @@ public class ApplicationDbContext(
     : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>(options), IApplicationDbContext
 {
     public DbSet<NoteList> NoteLists => Set<NoteList>();
+    public DbSet<AuditTrail> AuditTrails => Set<AuditTrail>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.HasPostgresExtension("unaccent");

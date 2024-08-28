@@ -6,7 +6,6 @@ using Backend.Application.NoteLists.Commands.DeleteNoteList;
 using Backend.Application.NoteLists.Commands.MoveNoteList;
 using Backend.Application.NoteLists.Commands.RenameNoteList;
 using Backend.Web.Infrastructure;
-using MoveNoteListDto = Backend.Application.NoteLists.Commands.MoveNoteList.MoveNoteListDto;
 
 namespace Backend.Web.Endpoints;
 
