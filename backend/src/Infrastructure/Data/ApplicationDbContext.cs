@@ -2,6 +2,7 @@
 using System.Reflection;
 using Backend.Application.Common.Interfaces;
 using Backend.Application.Common.Options;
+using Backend.Domain.Common;
 using Backend.Domain.Entities;
 using Backend.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
@@ -20,6 +21,7 @@ public class ApplicationDbContext(
     : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>(options), IApplicationDbContext
 {
     public DbSet<NoteList> NoteLists => Set<NoteList>();
+    public DbSet<Note> Notes => Set<Note>();
     public DbSet<AuditTrail> AuditTrails => Set<AuditTrail>();
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -30,10 +32,18 @@ public class ApplicationDbContext(
 
         foreach (var entityType in builder.Model.GetEntityTypes())
         {
-            foreach (var property in entityType.GetProperties()
-                         .Where(p => p.IsPrimaryKey() && p.ClrType == typeof(Guid)))
+            foreach (var property in entityType.GetProperties())
             {
-                property.ValueGenerated = ValueGenerated.Never;
+                if (property.IsPrimaryKey() && property.ClrType == typeof(Guid))
+                {
+                    property.ValueGenerated = ValueGenerated.Never;
+                }
+
+                if (property.Name == nameof(BaseAuditableEntity.CreatedBy))
+                {
+                    builder.Entity(entityType.ClrType)
+                        .HasIndex(property.Name);
+                }
             }
         }
 
