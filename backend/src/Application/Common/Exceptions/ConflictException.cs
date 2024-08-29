@@ -1,5 +1,5 @@
 ﻿namespace Backend.Application.Common.Exceptions;
 
-public class ForbiddenAccessException : Exception
+public class ConflictException : Exception
 {
 }

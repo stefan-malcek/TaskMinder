@@ -58,7 +58,8 @@ public class NoteLists : EndpointGroupBase
             .Produces(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
-            .ProducesProblem(StatusCodes.Status404NotFound);
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict);
     }
 
     public async Task<CreatedEntityDto> CreateNoteListAsync(ISender sender, SaveNoteListDto saveNoteList)

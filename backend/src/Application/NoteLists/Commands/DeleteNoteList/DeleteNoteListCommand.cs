@@ -1,4 +1,5 @@
 ﻿using Ardalis.GuardClauses;
+using Backend.Application.Common.Extensions;
 using Backend.Application.Common.Interfaces;
 using Backend.Domain.Entities;
 
@@ -16,6 +17,10 @@ internal class MoveNoteListCommandHandler(IApplicationDbContext context) : IRequ
         NoteList? entity = await context.NoteLists
             .SingleOrDefaultAsync(n => n.Id == request.Id, cancellationToken);
         Guard.Against.NotFound(request.Id, entity);
+
+        bool hasDependencies = await context.NoteLists
+            .AnyAsync(n => n.ParentId == entity.Id, cancellationToken);
+        Guard.Against.Conflict(() => !hasDependencies);
 
         context.NoteLists.Remove(entity);
         await context.SaveChangesAsync(cancellationToken);

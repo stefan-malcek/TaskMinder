@@ -20,7 +20,7 @@ internal class MoveNoteListCommandHandler(IApplicationDbContext context) : IRequ
         NoteList? entity = await context.NoteLists
             .SingleOrDefaultAsync(n => n.Id == request.Id, cancellationToken);
         Guard.Against.NotFound(request.Id, entity);
-        Guard.Against.InvalidBusinessRule(moveNoteList, x => x.ParentId != request.Id, ValidationErrors.InvalidNoteListParent);
+        Guard.Against.InvalidValidationRule(moveNoteList, x => x.ParentId != request.Id, ValidationErrors.InvalidNoteListParent);
 
         entity.ParentId = moveNoteList.ParentId;
         await context.SaveChangesAsync(cancellationToken);

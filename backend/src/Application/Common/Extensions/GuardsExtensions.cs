@@ -5,16 +5,24 @@ namespace Backend.Application.Common.Extensions;
 
 internal static class GuardsExtensions
 {
-    public static T InvalidBusinessRule<T>(this IGuardClause guardClause,
+    public static T InvalidValidationRule<T>(this IGuardClause guardClause,
         T input,
         Func<T, bool> predicate,
         string error)
     {
         if (!predicate(input))
         {
-            throw new AppValidationException(error);
+            throw new ValidationRuleException(error);
         }
 
         return input;
+    }
+
+    public static void Conflict(this IGuardClause guardClause, Func<bool> predicate)
+    {
+        if (!predicate())
+        {
+            throw new ConflictException();
+        }
     }
 }

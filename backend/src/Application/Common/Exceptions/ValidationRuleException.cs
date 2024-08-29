@@ -2,9 +2,9 @@
 
 namespace Backend.Application.Common.Exceptions;
 
-public class AppValidationException(string errorName) : Exception
+public class ValidationRuleException(string errorName) : Exception
 {
-    public AppValidationException(string errorName, IEnumerable<ValidationFailure> failures)
+    public ValidationRuleException(string errorName, IEnumerable<ValidationFailure> failures)
         : this(errorName)
     {
         Errors = failures
@@ -12,7 +12,7 @@ public class AppValidationException(string errorName) : Exception
             .ToDictionary(failureGroup => failureGroup.Key, failureGroup => failureGroup.ToArray());
     }
 
-    public AppValidationException(string errorName, IEnumerable<string> failures)
+    public ValidationRuleException(string errorName, IEnumerable<string> failures)
         : this(errorName)
     {
         Errors = new Dictionary<string, string[]> { { "BusinessError", failures.ToArray() } };

@@ -23,7 +23,7 @@ public class ValidationBehaviour<TRequest, TResponse>(IEnumerable<IValidator<TRe
 
             if (failures.Any())
             {
-                throw new AppValidationException(failures.Count == 1
+                throw new ValidationRuleException(failures.Count == 1
                     ? ValidationErrors.GetErrorCode(failures.First().ErrorCode)
                     : ValidationErrors.ValidationFailed
                     , failures);

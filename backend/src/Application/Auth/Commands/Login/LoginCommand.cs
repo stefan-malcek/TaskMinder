@@ -17,7 +17,7 @@ internal class LoginCommandHandler(IIdentityService identityService, IAuthTokenS
     public async Task<LoggedUserDto> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
         var user = await identityService.VerifyUserAsync(request.Email, request.Password);
-        Guard.Against.InvalidBusinessRule(user, x => x is not null, ValidationErrors.InvalidCredentials);
+        Guard.Against.InvalidValidationRule(user, x => x is not null, ValidationErrors.InvalidCredentials);
 
         var token = authTokenService.GenerateToken(user!.Id);
         return new LoggedUserDto

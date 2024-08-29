@@ -13,11 +13,12 @@ public class CustomExceptionHandler : IExceptionHandler
         // Register known exception types and handlers.
         _exceptionHandlers = new()
             {
-                { typeof(AppValidationException), HandleValidationExceptionAsync },
+                { typeof(ValidationRuleException), HandleValidationExceptionAsync },
                 { typeof(BadHttpRequestException), HandleBadRequestExceptionAsync },
                 { typeof(NotFoundException), HandleNotFoundExceptionAsync },
                 { typeof(UnauthorizedAccessException), HandleUnauthorizedAccessExceptionAsync },
-                { typeof(ForbiddenAccessException), HandleForbiddenAccessExceptionAsync },
+                { typeof(ForbiddenException), HandleForbiddenExceptionAsync },
+                { typeof(ConflictException), HandleConflictExceptionAsync }
             };
     }
 
@@ -38,7 +39,7 @@ public class CustomExceptionHandler : IExceptionHandler
 
     private async Task HandleValidationExceptionAsync(HttpContext httpContext, Exception ex)
     {
-        var exception = (AppValidationException)ex;
+        var exception = (ValidationRuleException)ex;
 
         httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
         await httpContext.Response.WriteAsJsonAsync(new ValidationProblemDetails(exception.Errors)
@@ -88,7 +89,7 @@ public class CustomExceptionHandler : IExceptionHandler
         });
     }
 
-    private async Task HandleForbiddenAccessExceptionAsync(HttpContext httpContext, Exception ex)
+    private async Task HandleForbiddenExceptionAsync(HttpContext httpContext, Exception ex)
     {
         httpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
 
@@ -97,6 +98,17 @@ public class CustomExceptionHandler : IExceptionHandler
             Status = StatusCodes.Status403Forbidden,
             Type = "https://tools.ietf.org/html/rfc7231#section-6.5.3",
             Detail = "User is not authorized."
+        });
+    }
+
+    private async Task HandleConflictExceptionAsync(HttpContext httpContext, Exception ex)
+    {
+        httpContext.Response.StatusCode = StatusCodes.Status409Conflict;
+
+        await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
+        {
+            Status = StatusCodes.Status409Conflict,
+            Detail = "Action is not permitted."
         });
     }
 
