@@ -6,10 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Notes\Queries\GetNoteLists\.gitkeep" />
     <None Remove="NoteLists\Queries\GetNoteLists\.gitkeep" />
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="Notes\Queries\GetNoteLists\.gitkeep" />
     <Compile Include="NoteLists\Queries\GetNoteLists\.gitkeep" />
   </ItemGroup>
 

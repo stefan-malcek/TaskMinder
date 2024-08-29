@@ -5,6 +5,8 @@ using Backend.Application.NoteLists.Commands.CreateNoteList;
 using Backend.Application.NoteLists.Commands.DeleteNoteList;
 using Backend.Application.NoteLists.Commands.MoveNoteList;
 using Backend.Application.NoteLists.Commands.RenameNoteList;
+using Backend.Application.Notes.Commands;
+using Backend.Application.Notes.Commands.CreateNote;
 using Backend.Web.Infrastructure;
 
 namespace Backend.Web.Endpoints;
@@ -60,6 +62,14 @@ public class NoteLists : EndpointGroupBase
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict);
+
+        root.MapPost(CreateNoteAsync, "{id}/Notes")
+            .WithEndpointDescription("Create a new note.", [
+                ValidationErrors.ValidationFailed
+            ])
+            .Produces(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status401Unauthorized);
     }
 
     public async Task<CreatedEntityDto> CreateNoteListAsync(ISender sender, SaveNoteListDto saveNoteList)
@@ -104,5 +114,16 @@ public class NoteLists : EndpointGroupBase
     {
         DeleteNoteListCommand command = new() { Id = id };
         await sender.Send(command);
+    }
+
+    public async Task<CreatedEntityDto> CreateNoteAsync(ISender sender, Guid id, SaveNoteDto saveNote)
+    {
+        CreateNoteCommand command = new()
+        {
+            ListId = id,
+            SaveNote = saveNote
+        };
+        Guid entityId = await sender.Send(command);
+        return new CreatedEntityDto { Id = entityId };
     }
 }

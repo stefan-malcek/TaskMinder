@@ -8,4 +8,5 @@ public class NoteList : BaseAuditableEntity
     public Guid? ParentId { get; set; }
     public NoteList? Parent { get; set; }
     public List<NoteList> Children { get; set; } = [];
+    public List<Note> Notes { get; set; } = [];
 }

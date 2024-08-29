@@ -19,7 +19,9 @@ internal class MoveNoteListCommandHandler(IApplicationDbContext context) : IRequ
         Guard.Against.NotFound(request.Id, entity);
 
         bool hasDependencies = await context.NoteLists
-            .AnyAsync(n => n.ParentId == entity.Id, cancellationToken);
+            .Where(n => n.Id == request.Id)
+            .Select(n => n.Children.Any() || n.Notes.Any())
+            .SingleAsync(cancellationToken);
         Guard.Against.Conflict(() => !hasDependencies);
 
         context.NoteLists.Remove(entity);
